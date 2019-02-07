@@ -195,6 +195,9 @@ sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
                 } else {
                     NSLog(@"ERROR reading sqlite master table");
                     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to open DB with key"];
+                    [[command.arguments objectAtIndex:0] setObject:dbfilename forKey:@"path"];
+                    [self deleteNow:command];
+                    return [self openNow:command];
                     // XXX TODO: close the db handle & [perhaps] remove from openDBs!!
                 }
             }

@@ -262,7 +262,14 @@ public class SQLitePlugin extends CordovaPlugin {
             return mydb;
         } catch (Exception e) {
             // NOTE: NO Android locking/closing BUG workaround needed here
-            cbc.error("can't open database " + e);
+
+            if(e.getMessage().contains("file is encrypted or is not a database:")) {
+                cbc.error("Database will be deleted to self heal: " + e);
+                deleteDatabaseNow(dbname);
+            } else{
+                cbc.error("can't open database " + e);
+            }
+
             throw e;
         }
     }
