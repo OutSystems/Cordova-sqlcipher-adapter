@@ -266,7 +266,7 @@ public class SQLitePlugin extends CordovaPlugin {
             // NOTE: NO Android locking/closing BUG workaround needed here
 
             if(selfHealingEnabled && e.getMessage().contains("file is encrypted or is not a database:")) {
-                logger.logError("Android database will be deleted to self heal:" + e.getMessage(), "SQLite");
+                logger.logError("Android database will be deleted to self heal: " + e.getMessage(), "SQLite");
                 deleteDatabaseNow(dbname);
                 return openDatabase(dbname, key, cbc, false);
             } else {
