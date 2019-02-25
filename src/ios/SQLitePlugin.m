@@ -211,7 +211,7 @@ sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
                     
                     if(selfHealingEnabled) {
                         [[command.arguments objectAtIndex:0] setObject:dbfilename forKey:@"path"];
-                        [_logger logError:[NSString stringWithFormat:@"iOS database will be deleted to self heal"] withModule:@"SQLite"];
+                        [_logger logError:[NSString stringWithFormat:@"iOS ciphered database will be deleted to self heal"] withModule:@"SQLite"];
                         [self deleteNow:command];
                         return [self openNow:command];
                     }

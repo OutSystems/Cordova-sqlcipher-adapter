@@ -266,7 +266,7 @@ public class SQLitePlugin extends CordovaPlugin {
             // NOTE: NO Android locking/closing BUG workaround needed here
 
             if(selfHealingEnabled && e.getMessage().contains("file is encrypted or is not a database:")) {
-                logger.logError("Android database will be deleted to self heal: " + e.getMessage(), "SQLite");
+                logger.logError("Android ciphered database will be deleted to self heal: " + e.getMessage(), "SQLite");
                 deleteDatabaseNow(dbname);
                 return openDatabase(dbname, key, cbc, false);
             } else {
@@ -389,7 +389,7 @@ public class SQLitePlugin extends CordovaPlugin {
             try {
                 this.mydb = openDatabase(dbname, this.dbkey, this.openCbc, false);
             } catch (Exception e) {
-                logger.logError("Error opening database: " + e.getMessage(), "SQLite");
+                logger.logError("Error found when opening ciphered database: " + e.getMessage(), "SQLite");
                 Log.e(SQLitePlugin.class.getSimpleName(), "unexpected error, stopping db thread", e);
                 dbrmap.remove(dbname);
                 return;
@@ -406,7 +406,7 @@ public class SQLitePlugin extends CordovaPlugin {
                     dbq = q.take();
                 }
             } catch (Exception e) {
-                logger.logError("Error executeSqlBatch: " + e.getMessage(), "SQLite");
+                logger.logError("Error executing SQL query in ciphered database: " + e.getMessage(), "SQLite");
                 Log.e(SQLitePlugin.class.getSimpleName(), "unexpected error", e);
             }
 
@@ -427,13 +427,13 @@ public class SQLitePlugin extends CordovaPlugin {
                                 dbq.cbc.error("couldn't delete database");
                             }
                         } catch (Exception e) {
-                            logger.logError("Error deleteDatabaseNow: " + e.getMessage(), "SQLite");
+                            logger.logError("Error while deleting ciphered database: " + e.getMessage(), "SQLite");
                             Log.e(SQLitePlugin.class.getSimpleName(), "couldn't delete database", e);
                             dbq.cbc.error("couldn't delete database: " + e);
                         }
-                    }                    
+                    }
                 } catch (Exception e) {
-                    logger.logError("Error closeDatabaseNow: " + e.getMessage(), "SQLite");
+                    logger.logError("Error while closing ciphered database: " + e.getMessage(), "SQLite");
                     Log.e(SQLitePlugin.class.getSimpleName(), "couldn't close database", e);
                     if (dbq.cbc != null) {
                         dbq.cbc.error("couldn't close database: " + e);
