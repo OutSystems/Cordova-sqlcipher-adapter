@@ -7,7 +7,7 @@
  */
 
 #import "SQLitePlugin.h"
-
+#import "OSLogger.h"
 #import "sqlite3.h"
 
 #if 0
@@ -54,11 +54,17 @@ sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
 }
 #endif
 
+@interface SQLitePlugin()
+@property (nonatomic, readonly, strong) id <OSLoggerProtocol> logger;
+@property (nonatomic, assign, readonly) BOOL selfHealingEnabled;
+@end
 
 @implementation SQLitePlugin
 
 @synthesize openDBs;
 @synthesize appDBPaths;
+
+@synthesize selfHealingEnabled;
 
 -(void)pluginInitialize
 {
@@ -72,6 +78,13 @@ sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
         [appDBPaths retain];
 #endif
 
+        _logger = [OSLogger sharedInstance];
+        
+        id selfHealingEnabledValue = [self.commandDelegate.settings objectForKey: [@"selfHealing" lowercaseString]];
+        if (selfHealingEnabledValue != nil) {
+            selfHealingEnabled = [selfHealingEnabledValue boolValue];
+        }
+        
         NSString *docs = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
         NSLog(@"Detected docs path: %@", docs);
         [appDBPaths setObject: docs forKey:@"docs"];
@@ -195,6 +208,14 @@ sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
                 } else {
                     NSLog(@"ERROR reading sqlite master table");
                     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to open DB with key"];
+                    
+                    if(selfHealingEnabled) {
+                        [[command.arguments objectAtIndex:0] setObject:dbfilename forKey:@"path"];
+                        [_logger logError:[NSString stringWithFormat:@"iOS database will be deleted to self heal"] withModule:@"SQLite"];
+                        [self deleteNow:command];
+                        return [self openNow:command];
+                    }
+                    
                     // XXX TODO: close the db handle & [perhaps] remove from openDBs!!
                 }
             }
