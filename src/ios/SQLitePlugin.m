@@ -80,7 +80,7 @@ sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
 
         _logger = [OSLogger sharedInstance];
         
-        id selfHealingEnabledValue = [self.commandDelegate.settings objectForKey: [@"selfHealing" lowercaseString]];
+        id selfHealingEnabledValue = [self.commandDelegate.settings objectForKey: [@"EnableSQLCipherSelfHealing" lowercaseString]];
         if (selfHealingEnabledValue != nil) {
             selfHealingEnabled = [selfHealingEnabledValue boolValue];
         }

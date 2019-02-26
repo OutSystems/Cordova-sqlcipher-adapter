@@ -656,7 +656,7 @@ The self-heal mechanism consists in deleting the previous encrypted local databa
 
 By default, this mechanism is disabled, but if you wish to use it you should use the following syntax in `config.xml`:
 ```
-  <preference name="selfHealing" value="true" />
+  <preference name="EnableSQLCipherSelfHealing" value="true" />
 ```
 
 # Database schema versions
