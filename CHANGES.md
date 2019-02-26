@@ -1,6 +1,6 @@
 # Changes
 
-## [Unreleased]
+## cordova-sqlcipher-adapter 0.1.7-OS4
 
 - Self healing mechanism
 
