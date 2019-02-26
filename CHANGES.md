@@ -1,5 +1,9 @@
 # Changes
 
+## [Unreleased]
+
+- Self healing mechanism
+
 ## cordova-sqlcipher-adapter 0.1.7
 
 - Fix Windows build

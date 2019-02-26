@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-sqlcipher-adapter"
-    version="0.1.7-os.3">
+    version="0.1.7-OS3">
 
     <name>Cordova sqlcipher adapter</name>
 
@@ -25,6 +25,8 @@
     <js-module src="www/SQLitePlugin.js" name="SQLitePlugin">
         <clobbers target="SQLitePlugin" />
     </js-module>
+
+    <dependency id="com.outsystems.plugins.logger" />
 
     <!-- android -->
     <platform name="android">

@@ -11,6 +11,9 @@ import android.annotation.SuppressLint;
 import android.util.Base64;
 import android.util.Log;
 
+import com.outsystems.plugins.oslogger.OSLogger;
+import com.outsystems.plugins.oslogger.interfaces.Logger;
+
 import java.io.File;
 import java.lang.IllegalArgumentException;
 import java.lang.Number;
@@ -52,6 +55,9 @@ public class SQLitePlugin extends CordovaPlugin {
      */
     static Map<String, DBRunner> dbrmap = new ConcurrentHashMap<String, DBRunner>();
 
+    private Logger logger;
+    private boolean selfHealingEnabled = false;
+
     /**
      * NOTE: Using default constructor, no explicit constructor.
      */
@@ -66,6 +72,8 @@ public class SQLitePlugin extends CordovaPlugin {
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
+        logger = OSLogger.getInstance();
+        selfHealingEnabled = preferences.getBoolean("EnableSQLCipherSelfHealing", false);
         SQLiteAndroidDatabase.initialize(cordova);
     }
 
@@ -256,7 +264,15 @@ public class SQLitePlugin extends CordovaPlugin {
             return mydb;
         } catch (Exception e) {
             // NOTE: NO Android locking/closing BUG workaround needed here
-            cbc.error("can't open database " + e);
+
+            if(selfHealingEnabled && e.getMessage().contains("file is encrypted or is not a database:")) {
+                logger.logWarning("Android ciphered database will be deleted to self heal: " + e.getMessage(), "SQLite");
+                deleteDatabaseNow(dbname);
+                return openDatabase(dbname, key, cbc, false);
+            } else {
+                cbc.error("can't open database " + e);
+            }
+
             throw e;
         }
     }
@@ -412,7 +428,7 @@ public class SQLitePlugin extends CordovaPlugin {
                             Log.e(SQLitePlugin.class.getSimpleName(), "couldn't delete database", e);
                             dbq.cbc.error("couldn't delete database: " + e);
                         }
-                    }                    
+                    }
                 } catch (Exception e) {
                     Log.e(SQLitePlugin.class.getSimpleName(), "couldn't close database", e);
                     if (dbq.cbc != null) {

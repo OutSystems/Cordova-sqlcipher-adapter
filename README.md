@@ -648,6 +648,17 @@ with `location` or `iosDatabaseLocation` parameter *required* as described above
 
 **BUG:** When a database is deleted, any queued transactions for that database are left hanging. All pending transactions should be errored when a database is deleted.
 
+## Self Healing Mechanism
+
+The self-healing mechanism is a mechanism that helps to recover mobile apps that are unable to open the ciphered local database. One known scenario when this can happen is when the mobile app's endpoint changes between versions.
+
+The self-heal mechanism consists in deleting the previous encrypted local database and to create a new one. So, instead of clients having errors in their apps, they will only lose the local configurations of the apps and no error screen will be shown. 
+
+By default, this mechanism is disabled, but if you wish to use it you should use the following syntax in `config.xml`:
+```
+  <preference name="EnableSQLCipherSelfHealing" value="true" />
+```
+
 # Database schema versions
 
 The transactional nature of the API makes it relatively straightforward to manage a database schema that may be upgraded over time (adding new columns or new tables, for example). Here is the recommended procedure to follow upon app startup:
