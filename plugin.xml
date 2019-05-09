@@ -45,6 +45,8 @@
         <source-file src="src/android/sqlcipher/libs/armeabi/libsqlcipher.so" target-dir="libs/armeabi" />
         <source-file src="src/android/sqlcipher/libs/armeabi-v7a/libsqlcipher.so" target-dir="libs/armeabi-v7a" />
         <source-file src="src/android/sqlcipher/libs/x86/libsqlcipher.so" target-dir="libs/x86" />
+        <source-file src="src/android/sqlcipher/libs/arm64-v8a/libsqlcipher.so" target-dir="libs/arm64-v8a" />
+        <source-file src="src/android/sqlcipher/libs/x86_64/libsqlcipher.so" target-dir="libs/x86_64" />
 
     </platform>
 
