@@ -1,5 +1,8 @@
 # Changes
 
+## [Unreleased]
+- Support to 64-bits 
+
 ## cordova-sqlcipher-adapter 0.1.7-OS4
 
 - Self healing mechanism
