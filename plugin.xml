@@ -26,7 +26,6 @@
         <clobbers target="SQLitePlugin" />
     </js-module>
 
-    <dependency id="com.outsystems.plugins.logger" />
 
     <!-- android -->
     <platform name="android">
