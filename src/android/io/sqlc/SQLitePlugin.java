@@ -265,7 +265,7 @@ public class SQLitePlugin extends CordovaPlugin {
         } catch (Exception e) {
             // NOTE: NO Android locking/closing BUG workaround needed here
 
-            if(selfHealingEnabled && e.getMessage().contains("file is encrypted or is not a database:")) {
+            if (shouldSelfHeal(e)) {
                 logger.logWarning("Android ciphered database will be deleted to self heal: " + e.getMessage(), "SQLite");
                 deleteDatabaseNow(dbname);
                 return openDatabase(dbname, key, cbc, false);
@@ -275,6 +275,16 @@ public class SQLitePlugin extends CordovaPlugin {
 
             throw e;
         }
+    }
+    
+    private boolean shouldSelfHeal(Exception openDatabaseException) {
+        if (!selfHealingEnabled) {
+            return false;
+        }
+        
+        String message = openDatabaseException.getMessage();
+        return message.contains("file is encrypted or is not a database:") ||
+            message.contains("file is not a database:");
     }
 
     // NOTE: createFromAssets (pre-populated DB) feature is not
