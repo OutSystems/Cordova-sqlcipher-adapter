@@ -14,6 +14,8 @@ import android.util.Log;
 import com.outsystems.plugins.oslogger.OSLogger;
 import com.outsystems.plugins.oslogger.interfaces.Logger;
 
+import net.sqlcipher.database.SQLiteException;
+
 import java.io.File;
 import java.lang.IllegalArgumentException;
 import java.lang.Number;
@@ -264,8 +266,9 @@ public class SQLitePlugin extends CordovaPlugin {
             return mydb;
         } catch (Exception e) {
             // NOTE: NO Android locking/closing BUG workaround needed here
-
-            if(selfHealingEnabled && e.getMessage().contains("file is encrypted or is not a database:")) {
+            if(selfHealingEnabled && (e.getMessage().contains("file is encrypted or is not a database:") ||
+                    ((e instanceof SQLiteException) && e.getMessage().contains("file is not a database:") )))
+            {
                 logger.logWarning("Android ciphered database will be deleted to self heal: " + e.getMessage(), "SQLite");
                 deleteDatabaseNow(dbname);
                 return openDatabase(dbname, key, cbc, false);
