@@ -7,12 +7,13 @@
     "platforms": [
       "android",
       "ios",
+      "osx",
       "windows"
     ]
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/litehelpers/Cordova-sqlcipher-adapter.git"
+    "url": "https://github.com/brodybits/cordova-sqlcipher-adapter.git"
   },
   "keywords": [
     "sqlite",
@@ -20,18 +21,23 @@
     "ecosystem:cordova",
     "cordova-android",
     "cordova-ios",
+    "cordova-osx",
     "cordova-windows"
-  ],
-  "engines": [
-    {
-      "name": "cordova",
-      "version": ">=3.3.0"
-    }
   ],
   "author": "various",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/litehelpers/Cordova-sqlcipher-adapter/issues"
+    "url": "https://github.com/brodybits/cordova-sqlcipher-adapter/issues"
   },
-  "homepage": "https://github.com/litehelpers/Cordova-sqlcipher-adapter"
+  "homepage": "https://github.com/brodybits/cordova-sqlcipher-adapter",
+  "scripts": {
+    "clean-spec": "rm -rf spec/[mnp]* && git cl spec/config.xml && git status --ignored",
+    "prepare-js": "coffee -p SQLitePlugin.coffee.md > www/SQLitePlugin.js",
+    "prepare-spec": "node scripts/prepareSpec.js"
+  },
+  "devDependencies": {
+    "coffeescript": "1",
+    "cross-spawn": "^6.0.5",
+    "fs-extra": "^8.1.0"
+  }
 }
