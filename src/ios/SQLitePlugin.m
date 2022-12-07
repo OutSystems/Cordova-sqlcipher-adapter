@@ -209,9 +209,18 @@
                 NSLog((key != NULL) ? @"Open DB with encryption" : @"Open DB with NO encryption");
                 if (key != NULL) sqlite3_key(db, key, strlen(key));
 
+                int queryResult = sqlite3_exec(db, (const char*)"SELECT count(*) FROM sqlite_master;", NULL, NULL, NULL);
+                if(queryResult != SQLITE_OK) {
+                    NSLog(@"ERROR reading sqlite master table. Will try to migrate from sqlcipher3 to sqlcipher4");
+                    queryResult = sqlite3_exec(db, (const char*)"PRAGMA cipher_migrate;", NULL, NULL, NULL);
+                    if(queryResult != SQLITE_OK) {
+                        NSLog(@"ERROR when trying to cipher_migrate code: %d", queryResult);
+                    }
+                }
+                
                 // XXX Brody TODO check this in Javascript instead.
                 // Attempt to read the SQLite master table [to support SQLCipher version]:
-                if(sqlite3_exec(db, (const char*)"SELECT count(*) FROM sqlite_master;", NULL, NULL, NULL) == SQLITE_OK) {
+                if(queryResult == SQLITE_OK) {
                     NSLog(@"DB open, check sqlite master table OK");
                     dbPointer = [NSValue valueWithPointer:db];
                     [openDBs setObject: dbPointer forKey: dbfilename];
