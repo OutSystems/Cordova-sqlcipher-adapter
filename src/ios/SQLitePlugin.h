@@ -39,7 +39,7 @@ typedef int WebSQLError;
 -(void) close: (CDVInvokedUrlCommand*)command;
 -(void) delete: (CDVInvokedUrlCommand*)command;
 
--(void) openNow: (CDVInvokedUrlCommand*)command :(Boolean) migrateSqlCipher;
+-(void) openNow: (CDVInvokedUrlCommand*)command migrateSqlCipher:(Boolean) migrateSqlCipher;
 -(void) closeNow: (CDVInvokedUrlCommand*)command;
 -(void) deleteNow: (CDVInvokedUrlCommand*)command;
 

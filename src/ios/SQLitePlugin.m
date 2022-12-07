@@ -142,11 +142,11 @@
 -(void)open: (CDVInvokedUrlCommand*)command
 {
     [self.commandDelegate runInBackground:^{
-        [self openNow: command :false];
+        [self openNow: command migrateSqlCipher:false];
     }];
 }
 
--(void)openNow: (CDVInvokedUrlCommand*)command :(Boolean) migrateSqlCipher
+-(void)openNow: (CDVInvokedUrlCommand*)command migrateSqlCipher:(Boolean) migrateSqlCipher
 {
     CDVPluginResult* pluginResult = nil;
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
@@ -218,14 +218,9 @@
                 
                 int queryResult = sqlite3_exec(db, "SELECT count(*) FROM sqlite_master;", NULL, NULL, NULL);
                 if(!migrateSqlCipher && queryResult != SQLITE_OK) {
-                    /* 
-                     * An error was found and will try to migrate.
-                     * The migration process is described here: https://www.zetetic.net/sqlcipher/sqlcipher-api/#cipher_migrate
-                     * This was implemented in a recursive way so less code is duplicated.
-                     */
                     NSLog(@"ERROR reading sqlite master table. Will try to migrate from sqlcipher3 to sqlcipher4");
                     sqlite3_close (db);
-                    return [self openNow :command :true];
+                    return [self openNow :command migrateSqlCipher:true];
                 }
                 
                 // XXX Brody TODO check this in Javascript instead.
@@ -243,7 +238,7 @@
                         [[command.arguments objectAtIndex:0] setObject:dbfilename forKey:@"path"];
                         [_logger logWarning:[NSString stringWithFormat:@"iOS ciphered database will be deleted to self heal"] withModule:@"SQLite"];
                         [self deleteNow:command];
-                        return [self openNow:command :false];
+                        return [self openNow:command migrateSqlCipher:false];
                     }
                     
                     // XXX TODO: close the db handle & [perhaps] remove from openDBs!!
