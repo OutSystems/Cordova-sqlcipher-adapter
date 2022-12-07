@@ -7,6 +7,7 @@
  */
 
 #import <Cordova/CDVPlugin.h>
+#import "sqlite3.h"
 
 // Used to remove dependency on sqlite3.h in this header:
 struct sqlite3;
@@ -38,7 +39,7 @@ typedef int WebSQLError;
 -(void) close: (CDVInvokedUrlCommand*)command;
 -(void) delete: (CDVInvokedUrlCommand*)command;
 
--(void) openNow: (CDVInvokedUrlCommand*)command;
+-(void) openNow: (CDVInvokedUrlCommand*)command :(Boolean) migrateSqlCipher;
 -(void) closeNow: (CDVInvokedUrlCommand*)command;
 -(void) deleteNow: (CDVInvokedUrlCommand*)command;
 

@@ -142,11 +142,11 @@
 -(void)open: (CDVInvokedUrlCommand*)command
 {
     [self.commandDelegate runInBackground:^{
-        [self openNow: command];
+        [self openNow: command :false];
     }];
 }
 
--(void)openNow: (CDVInvokedUrlCommand*)command
+-(void)openNow: (CDVInvokedUrlCommand*)command :(Boolean) migrateSqlCipher
 {
     CDVPluginResult* pluginResult = nil;
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
@@ -209,13 +209,18 @@
                 NSLog((key != NULL) ? @"Open DB with encryption" : @"Open DB with NO encryption");
                 if (key != NULL) sqlite3_key(db, key, strlen(key));
 
-                int queryResult = sqlite3_exec(db, (const char*)"SELECT count(*) FROM sqlite_master;", NULL, NULL, NULL);
-                if(queryResult != SQLITE_OK) {
-                    NSLog(@"ERROR reading sqlite master table. Will try to migrate from sqlcipher3 to sqlcipher4");
-                    queryResult = sqlite3_exec(db, (const char*)"PRAGMA cipher_migrate;", NULL, NULL, NULL);
-                    if(queryResult != SQLITE_OK) {
-                        NSLog(@"ERROR when trying to cipher_migrate code: %d", queryResult);
+                if(migrateSqlCipher) {
+                    int migrationResult = sqlite3_exec(db, (const char*)"PRAGMA cipher_migrate;", NULL, NULL, NULL);
+                    if(migrationResult != SQLITE_OK) {
+                        NSLog(@"ERROR when trying to cipher_migrate with code: %d", migrationResult);
                     }
+                }
+                
+                int queryResult = sqlite3_exec(db, "SELECT count(*) FROM sqlite_master;", NULL, NULL, NULL);
+                if(!migrateSqlCipher && queryResult != SQLITE_OK) {
+                    NSLog(@"ERROR reading sqlite master table. Will try to migrate from sqlcipher3 to sqlcipher4");
+                    sqlite3_close (db);
+                    return [self openNow :command :true];
                 }
                 
                 // XXX Brody TODO check this in Javascript instead.
@@ -233,7 +238,7 @@
                         [[command.arguments objectAtIndex:0] setObject:dbfilename forKey:@"path"];
                         [_logger logWarning:[NSString stringWithFormat:@"iOS ciphered database will be deleted to self heal"] withModule:@"SQLite"];
                         [self deleteNow:command];
-                        return [self openNow:command];
+                        return [self openNow:command :false];
                     }
                     
                     // XXX TODO: close the db handle & [perhaps] remove from openDBs!!
