@@ -219,6 +219,11 @@
                 int queryResult = sqlite3_exec(db, "SELECT count(*) FROM sqlite_master;", NULL, NULL, NULL);
                 if(!migrateSqlCipher && queryResult != SQLITE_OK) {
                     NSLog(@"ERROR reading sqlite master table. Will try to migrate from sqlcipher3 to sqlcipher4");
+                    /* 
+                     * An error was found and will try to migrate.
+                     * The migration process is described here: https://www.zetetic.net/sqlcipher/sqlcipher-api/#cipher_migrate
+                     * This was implemented in a recursive way so less code is duplicated.
+                     */
                     sqlite3_close (db);
                     return [self openNow :command migrateSqlCipher:true];
                 }
