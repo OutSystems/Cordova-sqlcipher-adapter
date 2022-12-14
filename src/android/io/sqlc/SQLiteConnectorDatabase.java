@@ -52,8 +52,16 @@ class SQLiteConnectorDatabase extends SQLiteAndroidDatabase
      */
     @Override
     void open(File dbFile) throws Exception {
+        SQLiteDatabaseHook hook = new SQLiteDatabaseHook() {
+            public void preKey(SQLiteDatabase database) {}
+            public void postKey(SQLiteDatabase database) {
+                String value = QueryHelper.singleValueFromQuery(database, "PRAGMA cipher_migrate");
+                setMessage(String.format("cipher_migrate result:%s", value));
+                status[0] = Integer.valueOf(value) == 0;
+            }
+        };
         mydb = connector.newSQLiteConnection(dbFile.getAbsolutePath(),
-          SQLiteOpenFlags.READWRITE | SQLiteOpenFlags.CREATE);
+          SQLiteOpenFlags.READWRITE | SQLiteOpenFlags.CREATE, hook);
     }
 
     /**
