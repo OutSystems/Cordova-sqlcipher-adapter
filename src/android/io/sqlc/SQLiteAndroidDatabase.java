@@ -1,23 +1,34 @@
 /*
- * Copyright (c) 2012-2016: Christopher J. Brody (aka Chris Brody)
+ * Copyright (c) 2012-present Christopher J. Brody (aka Chris Brody)
  * Copyright (c) 2005-2010, Nitobi Software Inc.
  * Copyright (c) 2010, IBM Corporation
  */
 
 package io.sqlc;
 
-import android.annotation.SuppressLint;
-
 // SQLCipher version of database classes:
 import net.sqlcipher.*;
 import net.sqlcipher.database.*;
 
-import android.util.Base64;
+/* ** NOT USED in this plugin version:
+import android.database.Cursor;
+import android.database.CursorWindow;
+import android.database.sqlite.SQLiteConstraintException;
+import android.database.sqlite.SQLiteCursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteStatement;
+// */
+
 import android.util.Log;
 
 import java.io.File;
+
 import java.lang.IllegalArgumentException;
 import java.lang.Number;
+
+import java.util.Locale;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,7 +45,7 @@ import org.json.JSONObject;
  */
 class SQLiteAndroidDatabase
 {
-    private static final Pattern FIRST_WORD = Pattern.compile("^\\s*(\\S+)",
+    private static final Pattern FIRST_WORD = Pattern.compile("^[\\s;]*([^\\s;]+)",
             Pattern.CASE_INSENSITIVE);
 
     private static final Pattern WHERE_CLAUSE = Pattern.compile("\\s+WHERE\\s+(.+)$",
@@ -46,9 +57,9 @@ class SQLiteAndroidDatabase
     private static final Pattern DELETE_TABLE_NAME = Pattern.compile("^\\s*DELETE\\s+FROM\\s+(\\S+)",
             Pattern.CASE_INSENSITIVE);
 
-    File dbFile;
-
     SQLiteDatabase mydb;
+
+    boolean isTransactionActive = false;
 
     /**
      * NOTE: Using default constructor, no explicit constructor.
@@ -69,8 +80,23 @@ class SQLiteAndroidDatabase
      *
      * @param dbfile   The database File specification
      */
-    void open(File dbfile, String key) throws Exception {
-        mydb = SQLiteDatabase.openOrCreateDatabase(dbfile, key, null);
+    void open(File dbfile, String key, boolean migrateCipher) throws Exception {
+
+        SQLiteDatabaseHook hook = null;
+        if(migrateCipher) {
+            hook = new SQLiteDatabaseHook() {
+                public void preKey(SQLiteDatabase database) {}
+                public void postKey(SQLiteDatabase database) {
+                    database.rawExecSQL("PRAGMA cipher_migrate");
+                }
+            };
+        }
+        mydb = SQLiteDatabase.openDatabase(
+                dbfile.getAbsolutePath(),
+                key,
+                null,
+                SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.CREATE_IF_NECESSARY,
+                hook);
     }
 
     /**
@@ -78,6 +104,15 @@ class SQLiteAndroidDatabase
      */
     void closeDatabaseNow() {
         if (mydb != null) {
+            if (isTransactionActive) {
+                try {
+                    mydb.endTransaction();
+                } catch (Exception ex) {
+                    Log.v("closeDatabaseNow", "INTERNAL PLUGIN ERROR IGNORED: Not able to end active transaction before closing database: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
+                isTransactionActive = false;
+            }
             mydb.close();
             mydb = null;
         }
@@ -88,55 +123,72 @@ class SQLiteAndroidDatabase
     /**
      * Executes a batch request and sends the results via cbc.
      *
-     * @param dbname     The name of the database.
      * @param queryarr   Array of query strings
-     * @param jsonparams Array of JSON query parameters
-     * @param queryIDs   Array of query ids
+     * @param jsonparamsArr Array of JSON query parameters
      * @param cbc        Callback context from Cordova API
      */
-    @SuppressLint("NewApi")
-    void executeSqlBatch(String[] queryarr, JSONArray[] jsonparams,
-                                 String[] queryIDs, CallbackContext cbc) {
+    void executeSqlBatch(String[] queryarr, JSONArray[] jsonparamsArr, CallbackContext cbc) {
 
         if (mydb == null) {
             // not allowed - can only happen if someone has closed (and possibly deleted) a database and then re-used the database
-            cbc.error("database has been closed");
+            // (internal plugin error)
+            cbc.error("INTERNAL PLUGIN ERROR: database not open");
             return;
         }
 
-        String query = "";
-        String query_id = "";
         int len = queryarr.length;
         JSONArray batchResults = new JSONArray();
 
         for (int i = 0; i < len; i++) {
-            // NOTE: no need for rowsAffectedCompat hack with SQLCipher for Android
-            query_id = queryIDs[i];
+            executeSqlBatchStatement(queryarr[i], jsonparamsArr[i], batchResults);
+        }
+
+        cbc.success(batchResults);
+    }
+
+    private void executeSqlBatchStatement(String query, JSONArray json_params, JSONArray batchResults) {
+
+        if (mydb == null) {
+            // Should not happen here
+            return;
+
+        } else {
+
+            int rowsAffectedCompat = 0;
+            boolean needRowsAffectedCompat = false;
 
             JSONObject queryResult = null;
+
             String errorMessage = "unknown";
+            int code = 0; // SQLException.UNKNOWN_ERR
 
             try {
                 boolean needRawQuery = true;
 
-                query = queryarr[i];
-
+                //Log.v("executeSqlBatch", "...");
                 QueryType queryType = getQueryType(query);
+                //Log.v("executeSqlBatch", "query type: " + queryType);
 
                 if (queryType == QueryType.update || queryType == queryType.delete) {
                     // NOTE: SQLCipher for Android provides consistent SQLiteStatement.executeUpdateDelete();
                     // no need for rowsAffectedCompat hack.
                     SQLiteStatement myStatement = mydb.compileStatement(query);
 
-                    if (jsonparams != null) {
-                        bindArgsToStatement(myStatement, jsonparams[i]);
-                    }
+                    bindArgsToStatement(myStatement, json_params);
 
                     long rowsAffected = -1; // (assuming invalid)
 
                     try {
                         rowsAffected = myStatement.executeUpdateDelete();
                         // Indicate valid results:
+                        needRawQuery = false;
+                    } catch (SQLiteConstraintException ex) {
+                        // Indicate problem & stop this query:
+                        ex.printStackTrace();
+                        errorMessage = "constraint failure: " + ex.getMessage();
+                        code = 6; // SQLException.CONSTRAINT_ERR
+                        Log.v("executeSqlBatch", "SQLiteStatement.executeUpdateDelete(): Error=" + errorMessage);
+                        // stop the query in case of error:
                         needRawQuery = false;
                     } catch (SQLiteException ex) {
                         // Indicate problem & stop this query:
@@ -157,12 +209,12 @@ class SQLiteAndroidDatabase
                 }
 
                 // INSERT:
-                if (queryType == QueryType.insert && jsonparams != null) {
+                if (queryType == QueryType.insert && json_params != null) {
                     needRawQuery = false;
 
                     SQLiteStatement myStatement = mydb.compileStatement(query);
 
-                    bindArgsToStatement(myStatement, jsonparams[i]);
+                    bindArgsToStatement(myStatement, json_params);
 
                     long insertId = -1; // (invalid)
 
@@ -177,9 +229,14 @@ class SQLiteAndroidDatabase
                         } else {
                             queryResult.put("rowsAffected", 0);
                         }
+                    } catch (SQLiteConstraintException ex) {
+                        // report constraint violation error result with the error message
+                        ex.printStackTrace();
+                        errorMessage = "constraint failure: " + ex.getMessage();
+                        code = 6; // SQLException.CONSTRAINT_ERR
+                        Log.v("executeSqlBatch", "SQLiteDatabase.executeInsert(): Error=" + errorMessage);
                     } catch (SQLiteException ex) {
-                        // report error result with the error message
-                        // could be constraint violation or some other error
+                        // report some other error result with the error message
                         ex.printStackTrace();
                         errorMessage = ex.getMessage();
                         Log.v("executeSqlBatch", "SQLiteDatabase.executeInsert(): Error=" + errorMessage);
@@ -193,6 +250,7 @@ class SQLiteAndroidDatabase
                     needRawQuery = false;
                     try {
                         mydb.beginTransaction();
+                        isTransactionActive = true;
 
                         queryResult = new JSONObject();
                         queryResult.put("rowsAffected", 0);
@@ -208,6 +266,7 @@ class SQLiteAndroidDatabase
                     try {
                         mydb.setTransactionSuccessful();
                         mydb.endTransaction();
+                        isTransactionActive = false;
 
                         queryResult = new JSONObject();
                         queryResult.put("rowsAffected", 0);
@@ -222,6 +281,7 @@ class SQLiteAndroidDatabase
                     needRawQuery = false;
                     try {
                         mydb.endTransaction();
+                        isTransactionActive = false;
 
                         queryResult = new JSONObject();
                         queryResult.put("rowsAffected", 0);
@@ -234,7 +294,25 @@ class SQLiteAndroidDatabase
 
                 // raw query for other statements:
                 if (needRawQuery) {
-                    queryResult = this.executeSqlStatementQuery(mydb, query, jsonparams[i], cbc);
+                    try {
+                        queryResult = this.executeSqlStatementQuery(mydb, query, json_params);
+
+                    } catch (SQLiteConstraintException ex) {
+                        // report constraint violation error result with the error message
+                        ex.printStackTrace();
+                        errorMessage = "constraint failure: " + ex.getMessage();
+                        code = 6; // SQLException.CONSTRAINT_ERR
+                        Log.v("executeSqlBatch", "Raw query error=" + errorMessage);
+                    } catch (SQLiteException ex) {
+                        // report some other error result with the error message
+                        ex.printStackTrace();
+                        errorMessage = ex.getMessage();
+                        Log.v("executeSqlBatch", "Raw query error=" + errorMessage);
+                    }
+
+                    if (needRowsAffectedCompat) {
+                        queryResult.put("rowsAffected", rowsAffectedCompat);
+                    }
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -245,7 +323,6 @@ class SQLiteAndroidDatabase
             try {
                 if (queryResult != null) {
                     JSONObject r = new JSONObject();
-                    r.put("qid", query_id);
 
                     r.put("type", "success");
                     r.put("result", queryResult);
@@ -253,11 +330,11 @@ class SQLiteAndroidDatabase
                     batchResults.put(r);
                 } else {
                     JSONObject r = new JSONObject();
-                    r.put("qid", query_id);
                     r.put("type", "error");
 
                     JSONObject er = new JSONObject();
                     er.put("message", errorMessage);
+                    er.put("code", code);
                     r.put("result", er);
 
                     batchResults.put(r);
@@ -268,8 +345,6 @@ class SQLiteAndroidDatabase
                 // TODO what to do?
             }
         }
-
-        cbc.success(batchResults);
     }
 
     private void bindArgsToStatement(SQLiteStatement myStatement, JSONArray sqlArgs) throws JSONException {
@@ -285,24 +360,24 @@ class SQLiteAndroidDatabase
             }
         }
     }
-	
-	private static Object[] getParamsFromJSON(JSONArray paramsAsJson) throws JSONException {
-		Object[] params = new Object[paramsAsJson.length()];
 
-		for (int i = 0; i < paramsAsJson.length(); i++) {
-			if (paramsAsJson.get(i) instanceof Float || paramsAsJson.get(i) instanceof Double) {
-				params[i] = paramsAsJson.getDouble(i);
-			} else if (paramsAsJson.get(i) instanceof Number) {
-				params[i] = paramsAsJson.getLong(i);
-			} else if (paramsAsJson.isNull(i)) {
-				params[i] = null;
-			} else {
-				params[i] = paramsAsJson.getString(i);
-			}
-		}
-		
-		return params;
-	}
+    private static Object[] getParamsFromJSON(JSONArray paramsAsJson) throws JSONException {
+        Object[] params = new Object[paramsAsJson.length()];
+
+        for (int i = 0; i < paramsAsJson.length(); i++) {
+            if (paramsAsJson.get(i) instanceof Float || paramsAsJson.get(i) instanceof Double) {
+                params[i] = paramsAsJson.getDouble(i);
+            } else if (paramsAsJson.get(i) instanceof Number) {
+                params[i] = paramsAsJson.getLong(i);
+            } else if (paramsAsJson.isNull(i)) {
+                params[i] = null;
+            } else {
+                params[i] = paramsAsJson.getString(i);
+            }
+        }
+
+        return params;
+    }
 
     /**
      * Get rows results from query cursor.
@@ -310,9 +385,8 @@ class SQLiteAndroidDatabase
      * @param cur Cursor into query results
      * @return results in string form
      */
-    private JSONObject executeSqlStatementQuery(SQLiteDatabase mydb,
-                                                String query, JSONArray paramsAsJson,
-                                                CallbackContext cbc) throws Exception {
+    private JSONObject executeSqlStatementQuery(SQLiteDatabase mydb, String query,
+                                                JSONArray paramsAsJson) throws Exception {
         JSONObject rowsResult = new JSONObject();
 
         Cursor cur = null;
@@ -365,7 +439,7 @@ class SQLiteAndroidDatabase
     }
 
     /**
-     * bindPostHoneycomb - always valid for SQLCipher for Android
+     * bindPostHoneycomb - always valid for this plugin version (SQLCipher for Android)
      *
      */
     private void bindPostHoneycomb(JSONObject row, String key, Cursor cur, int i) throws JSONException {
@@ -381,11 +455,8 @@ class SQLiteAndroidDatabase
             case Cursor.FIELD_TYPE_FLOAT:
                 row.put(key, cur.getDouble(i));
                 break;
-            case Cursor.FIELD_TYPE_BLOB:
-                row.put(key, new String(Base64.encode(cur.getBlob(i), Base64.DEFAULT)));
-                break;
             case Cursor.FIELD_TYPE_STRING:
-            default: /* (not expected) */
+            default: /* (BLOB) */
                 row.put(key, cur.getString(i));
                 break;
         }
@@ -393,14 +464,26 @@ class SQLiteAndroidDatabase
 
     static QueryType getQueryType(String query) {
         Matcher matcher = FIRST_WORD.matcher(query);
+
+        // FIND & return query type, or throw:
         if (matcher.find()) {
             try {
-                return QueryType.valueOf(matcher.group(1).toLowerCase());
+                String first = matcher.group(1);
+
+                // explictly reject if blank
+                // (needed for SQLCipher version)
+                if (first.length() == 0) throw new RuntimeException("query not found");
+
+                return QueryType.valueOf(first.toLowerCase(Locale.ENGLISH));
             } catch (IllegalArgumentException ignore) {
-                // unknown verb
+                // unknown verb (NOT blank)
+                return QueryType.other;
             }
+        } else {
+            // explictly reject if blank
+            // (needed for SQLCipher version)
+            throw new RuntimeException("query not found");
         }
-        return QueryType.other;
     }
 
     static enum QueryType {
