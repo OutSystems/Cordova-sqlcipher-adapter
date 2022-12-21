@@ -13,7 +13,6 @@ import net.sqlcipher.database.*;
 /* ** NOT USED in this plugin version:
 import android.database.Cursor;
 import android.database.CursorWindow;
-
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -81,8 +80,23 @@ class SQLiteAndroidDatabase
      *
      * @param dbfile   The database File specification
      */
-    void open(File dbfile, String key) throws Exception {
-        mydb = SQLiteDatabase.openOrCreateDatabase(dbfile, key, null);
+    void open(File dbfile, String key, boolean migrateCipher) throws Exception {
+
+        SQLiteDatabaseHook hook = null;
+        if(migrateCipher) {
+            hook = new SQLiteDatabaseHook() {
+                public void preKey(SQLiteDatabase database) {}
+                public void postKey(SQLiteDatabase database) {
+                    database.rawExecSQL("PRAGMA cipher_migrate");
+                }
+            };
+        }
+        mydb = SQLiteDatabase.openDatabase(
+                dbfile.getAbsolutePath(),
+                key,
+                null,
+                SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.CREATE_IF_NECESSARY,
+                hook);
     }
 
     /**
@@ -346,24 +360,24 @@ class SQLiteAndroidDatabase
             }
         }
     }
-	
-	private static Object[] getParamsFromJSON(JSONArray paramsAsJson) throws JSONException {
-		Object[] params = new Object[paramsAsJson.length()];
 
-		for (int i = 0; i < paramsAsJson.length(); i++) {
-			if (paramsAsJson.get(i) instanceof Float || paramsAsJson.get(i) instanceof Double) {
-				params[i] = paramsAsJson.getDouble(i);
-			} else if (paramsAsJson.get(i) instanceof Number) {
-				params[i] = paramsAsJson.getLong(i);
-			} else if (paramsAsJson.isNull(i)) {
-				params[i] = null;
-			} else {
-				params[i] = paramsAsJson.getString(i);
-			}
-		}
-		
-		return params;
-	}
+    private static Object[] getParamsFromJSON(JSONArray paramsAsJson) throws JSONException {
+        Object[] params = new Object[paramsAsJson.length()];
+
+        for (int i = 0; i < paramsAsJson.length(); i++) {
+            if (paramsAsJson.get(i) instanceof Float || paramsAsJson.get(i) instanceof Double) {
+                params[i] = paramsAsJson.getDouble(i);
+            } else if (paramsAsJson.get(i) instanceof Number) {
+                params[i] = paramsAsJson.getLong(i);
+            } else if (paramsAsJson.isNull(i)) {
+                params[i] = null;
+            } else {
+                params[i] = paramsAsJson.getString(i);
+            }
+        }
+
+        return params;
+    }
 
     /**
      * Get rows results from query cursor.

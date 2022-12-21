@@ -16,7 +16,6 @@ import net.sqlcipher.database.SQLiteException;
 import java.io.File;
 
 import java.lang.IllegalArgumentException;
-import java.lang.Number;
 
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -60,6 +59,7 @@ public class SQLitePlugin extends CordovaPlugin {
 
     private Logger logger;
     private boolean selfHealingEnabled = false;
+    private boolean didTryCipherMigration = false;
 
     /**
      * NOTE: Using default constructor, no explicit constructor.
@@ -230,6 +230,8 @@ public class SQLitePlugin extends CordovaPlugin {
      * @param dbName   The name of the database file
      */
     private SQLiteAndroidDatabase openDatabase(String dbname, String key, CallbackContext cbc, boolean old_impl) throws Exception {
+
+        SQLiteAndroidDatabase mydb = null;
         try {
             // ASSUMPTION: no db (connection/handle) is already stored in the map
             // [should be true according to the code in DBRunner.run()]
@@ -242,14 +244,29 @@ public class SQLitePlugin extends CordovaPlugin {
 
             Log.v("info", "Open sqlite db: " + dbfile.getAbsolutePath());
 
-            SQLiteAndroidDatabase mydb = new SQLiteAndroidDatabase();
-            mydb.open(dbfile, key);
+            mydb = new SQLiteAndroidDatabase();
+            mydb.open(dbfile, key, didTryCipherMigration);
 
             // NOTE: NO Android locking/closing BUG workaround needed here
             cbc.success();
 
             return mydb;
         } catch (Exception e) {
+
+            logger.logWarning("Got " + e.getMessage() + " exception.", "SQLite");
+
+            if(mydb != null && !didTryCipherMigration) {
+                logger.logVerbose("Will try Cipher Migration.", "SQLite");
+                /*
+                 * An error was found and will try to migrate.
+                 * The migration process is described here: https://www.zetetic.net/sqlcipher/sqlcipher-api/#cipher_migrate
+                 * This was implemented in a recursive way so less code is duplicated / changed.
+                 */
+                mydb.closeDatabaseNow();
+                didTryCipherMigration = true;
+                return openDatabase(dbname, key, cbc, old_impl);
+            }
+
             // NOTE: NO Android locking/closing BUG workaround needed here
             if(selfHealingEnabled && (e.getMessage().contains("file is encrypted or is not a database:") ||
                     ((e instanceof SQLiteException) && e.getMessage().contains("file is not a database:") )))

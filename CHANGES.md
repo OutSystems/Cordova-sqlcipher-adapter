@@ -1,5 +1,9 @@
 # Changes
 
+## unreleased
+
+- Update for SQLCipher 4.4.2 and SQLite 3.33.0
+
 ## cordova-sqlcipher-adapter 0.1.7-OS7
 
 - Fix: Add another use case for self-healing the database (https://outsystemsrd.atlassian.net/browse/RMET-1191)
@@ -7,7 +11,6 @@
 ## cordova-sqlcipher-adapter 0.1.7-OS6
 
 - Logger removal for MABS 7
-
 
 ## cordova-sqlcipher-adapter 0.1.7-OS5
 

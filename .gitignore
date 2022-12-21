@@ -2,6 +2,8 @@
 .metadata/*
 *.swp
 *~
+.idea
+.iml
 node_modules
 package-lock.json
 spec/myplugin
