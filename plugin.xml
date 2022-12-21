@@ -14,12 +14,9 @@
 
     <author>Litehelpers/Various</author>
 
-    <!-- No longer enforced:
-    <engines>
-        <engine name="cordova" version=">=6.0.0" />
-        <engine name="cordova-android" version=">=5.0.0" />
-        <engine name="cordova-ios" version=">=4.0.0" />
-    </engines>
+    <!-- THANKS to AllJoyn-Cordova / cordova-plugin-alljoyn: -->
+    <!-- [NOT in this version branch]
+    <hook type="before_plugin_install" src="scripts/beforePluginInstall.js" />
      -->
 
     <js-module src="www/SQLitePlugin.js" name="SQLitePlugin">
@@ -39,17 +36,23 @@
         <source-file src="src/android/io/sqlc/SQLitePlugin.java" target-dir="src/io/sqlc"/>
         <source-file src="src/android/io/sqlc/SQLiteAndroidDatabase.java" target-dir="src/io/sqlc"/>
 
-        <!-- SQLCipher distribution for Android: -->
-        <source-file src="src/android/sqlcipher/libs/sqlcipher.jar" target-dir="libs" />
-        <source-file src="src/android/sqlcipher/libs/armeabi/libsqlcipher.so" target-dir="libs/armeabi" />
-        <source-file src="src/android/sqlcipher/libs/armeabi-v7a/libsqlcipher.so" target-dir="libs/armeabi-v7a" />
-        <source-file src="src/android/sqlcipher/libs/x86/libsqlcipher.so" target-dir="libs/x86" />
-        <source-file src="src/android/sqlcipher/libs/arm64-v8a/libsqlcipher.so" target-dir="libs/arm64-v8a" />
-        <source-file src="src/android/sqlcipher/libs/x86_64/libsqlcipher.so" target-dir="libs/x86_64" />
+        <lib-file src="src/android/libs/android-database-sqlcipher-classes.jar" />
+        <lib-file src="src/android/libs/android-database-sqlcipher-ndk.jar" />
+        <!-- androidx.sqlite now required -->
+        <framework src="androidx.sqlite:sqlite:2.1.0" />
 
+        <!-- [FUTURE TBD] consider using external aar again -->
+        <!-- THANKS to @jcesarmobile for GUIDANCE in accepted answer:
+             https://stackoverflow.com/questions/34115571/add-external-jar-library-to-build-cordova-plugin-ionic-framework/34129929#34129929
+         -->
+        <!-- SQLCipher distribution for Android
+             [sqlcipher.jar & ndk objects in aar (modified reference for Buildr)] from:
+             https://mvnrepository.com/artifact/net.zetetic/android-database-sqlcipher/4.3.0
+        <framework src="net.zetetic:android-database-sqlcipher:4.3.0" />
+        - -->
     </platform>
 
-    <!-- ios -->
+    <!-- iOS -->
     <platform name="ios">
         <config-file target="config.xml" parent="/*">
             <feature name="SQLitePlugin">
@@ -60,30 +63,76 @@
         <header-file src="src/ios/SQLitePlugin.h" />
         <source-file src="src/ios/SQLitePlugin.m" compiler-flags="-DSQLITE_HAS_CODEC" />
 
+        <source-file src="src/ios/CustomPSPDFThreadSafeMutableDictionary.m"
+                compiler-flags="-w" />
+
         <!-- SQLCipher source distribution and Security.framework dependency for iOS: -->
         <header-file src="src/common/sqlite3.h" />
         <source-file src="src/common/sqlite3.c"
-                     compiler-flags="-DSQLITE_HAS_CODEC -DSQLITE_THREADSAFE=2 -DSQLITE_TEMP_STORE=3 -DSQLCIPHER_CRYPTO_CC -DSQLITE_LOCKING_STYLE=1 -DSQLITE_OMIT_BUILTIN_TEST=1 -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_ENABLE_FTS3=1 -DSQLITE_ENABLE_FTS3_PARENTHESIS=1 -DSQLITE_ENABLE_FTS4=1 -DSQLITE_ENABLE_RTREE=1 -DNDEBUG -DSQLITE_ENABLE_FTS5 -DSQLITE_ENABLE_JSON1" />
-        <framework src="Security.framework" />
+                     compiler-flags="-w
+                                     -DSQLITE_HAS_CODEC -DHAVE_USLEEP=1
+                                     -DSQLITE_TEMP_STORE=3
+                                     -DSQLCIPHER_CRYPTO_CC -DSQLITE_LOCKING_STYLE=1 -DNDEBUG
+                                     -DSQLITE_THREADSAFE=1
+                                     -DSQLITE_DEFAULT_SYNCHRONOUS=3
+                                     -DSQLITE_DEFAULT_MEMSTATUS=0 -DSQLITE_OMIT_DECLTYPE
+                                     -DSQLITE_OMIT_DEPRECATED
+                                     -DSQLITE_OMIT_PROGRESS_CALLBACK -DSQLITE_OMIT_SHARED_CACHE -DSQLITE_OMIT_LOAD_EXTENSION
+                                     -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_FTS4 -DSQLITE_ENABLE_RTREE
+                                     -DSQLITE_ENABLE_FTS5 -DSQLITE_ENABLE_JSON1
+                                    " />
 
+        <framework src="Security.framework" />
     </platform>
 
-    <!-- windows -->
-    <platform name="windows">
+    <!-- macOS (osx) -->
+    <platform name="osx">
+        <config-file target="config.xml" parent="/*">
+            <feature name="SQLitePlugin">
+                <param name="ios-package" value="SQLitePlugin" />
+            </feature>
+        </config-file>
+
+        <!-- Note: the macOS (osx) src is based off src/ios implicitly -->
+        <header-file src="src/ios/SQLitePlugin.h" />
+        <source-file src="src/ios/SQLitePlugin.m" compiler-flags="-DSQLITE_HAS_CODEC" />
+        <!-- FUTURE TBD: more common directory name for Apple macOS/iOS versions -->
+
+        <source-file src="src/ios/CustomPSPDFThreadSafeMutableDictionary.m"
+                compiler-flags="-w" />
+
+        <!-- SQLCipher source distribution and Security.framework dependency for macOS: -->
+        <header-file src="src/common/sqlite3.h" />
+        <source-file src="src/common/sqlite3.c"
+                     compiler-flags="-w
+                                     -DSQLITE_HAS_CODEC -DHAVE_USLEEP=1
+                                     -DSQLITE_TEMP_STORE=3
+                                     -DSQLCIPHER_CRYPTO_CC -DSQLITE_LOCKING_STYLE=1 -DNDEBUG
+                                     -DSQLITE_THREADSAFE=1
+                                     -DSQLITE_DEFAULT_SYNCHRONOUS=3
+                                     -DSQLITE_DEFAULT_MEMSTATUS=0 -DSQLITE_OMIT_DECLTYPE
+                                     -DSQLITE_OMIT_DEPRECATED
+                                     -DSQLITE_OMIT_PROGRESS_CALLBACK -DSQLITE_OMIT_SHARED_CACHE -DSQLITE_OMIT_LOAD_EXTENSION
+                                     -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_FTS4 -DSQLITE_ENABLE_RTREE
+                                     -DSQLITE_ENABLE_FTS5 -DSQLITE_ENABLE_JSON1
+                                    " />
+
+        <framework src="Security.framework" />
+    </platform>
+
+    <!-- XXX Windows platform support DISABLED (not tested, no longer supported in this plugin version) -->
+    <platform name="windows-disabled">
         <js-module src="src/windows/sqlite-proxy.js" name="SQLiteProxy">
-            <merges target="" />
+            <runs />
         </js-module>
 
         <!-- SQLite3 JS module from SQLite3-WinRT/SQLite3JS: -->
-        <js-module src="src/windows/SQLite3-Win-RT/SQLite3JS/js/SQLite3.js" name="SQLite3">
-            <merges target="" />
+        <js-module src="src/windows/SQLite3-WinRT-sync/SQLite3JS/js/SQLite3.js" name="SQLite3">
+            <runs />
         </js-module>
 
-        <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn: -->
-        <framework src="src/windows/SQLite3-Win-RT/SQLite3/SQLite3.UWP/SQLite3.UWP.vcxproj" custom="true" type="projectReference" versions="10.*" />
-        <framework src="src/windows/SQLite3-Win-RT/SQLite3/SQLite3.Windows/SQLite3.Windows.vcxproj" custom="true" type="projectReference" target="windows" versions="8.1" />
-        <framework src="src/windows/SQLite3-Win-RT/SQLite3/SQLite3.WindowsPhone/SQLite3.WindowsPhone.vcxproj" custom="true" type="projectReference" target="phone" versions="8.1" />
-
+        <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn for guidance: -->
+        <framework src="src/windows/SQLite3-WinRT-sync/SQLite3/SQLite3.UWP.vcxproj" custom="true" type="projectReference" versions="10.*" />
     </platform>
 
 </plugin>

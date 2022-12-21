@@ -8,13 +8,15 @@ MIT or Apache 2.0
 
 MIT or Apache 2.0
 
-## iOS version
+## iOS/macOS version
 
 MIT only
 
 based on Phonegap-SQLitePlugin by @davibe (Davide Bertola <dade@dadeb.it>) and @joenoon (Joe Noon <joenoon@gmail.com>)
 
-## Windows (8.1) version
+includes and uses PSPDFThreadSafeMutableDictionary (PSPDFThreadSafeMutableDictionary.m <https://gist.github.com/steipete/5928916>) MIT license by @steipete (<https://gist.github.com/steipete>)
+
+## Windows version
 
 MIT or Apache 2.0
 
@@ -24,3 +26,6 @@ by @doo (doo GmbH)
 
 MIT License
 
+## SQLite3
+
+Public domain

@@ -1,5 +1,12 @@
 .DS_Store
-.plugin
 .metadata/*
 *.swp
 *~
+.idea
+.iml
+node_modules
+package-lock.json
+spec/myplugin
+spec/plugins
+spec/platforms
+yarn.lock

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016: Christopher J. Brody (aka Chris Brody)
+ * Copyright (c) 2012-present Christopher J. Brody (aka Chris Brody)
  * Copyright (C) 2011 Davide Bertola
  *
  * This library is available under the terms of the MIT License (2008).
@@ -7,6 +7,7 @@
  */
 
 #import <Cordova/CDVPlugin.h>
+#import "sqlite3.h"
 
 // Used to remove dependency on sqlite3.h in this header:
 struct sqlite3;
@@ -17,7 +18,7 @@ enum WebSQLError {
     VERSION_ERR = 2,
     TOO_LARGE_ERR = 3,
     QUOTA_ERR = 4,
-    SYNTAX_ERR = 5,
+    SYNTAX_ERR_ = 5,
     CONSTRAINT_ERR = 6,
     TIMEOUT_ERR = 7
 };
@@ -38,7 +39,7 @@ typedef int WebSQLError;
 -(void) close: (CDVInvokedUrlCommand*)command;
 -(void) delete: (CDVInvokedUrlCommand*)command;
 
--(void) openNow: (CDVInvokedUrlCommand*)command;
+-(void) openNow: (CDVInvokedUrlCommand*)command migrateSqlCipher:(Boolean) migrateSqlCipher;
 -(void) closeNow: (CDVInvokedUrlCommand*)command;
 -(void) deleteNow: (CDVInvokedUrlCommand*)command;
 
