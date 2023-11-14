@@ -36,7 +36,7 @@
         <source-file src="src/android/io/sqlc/SQLitePlugin.java" target-dir="src/io/sqlc"/>
         <source-file src="src/android/io/sqlc/SQLiteAndroidDatabase.java" target-dir="src/io/sqlc"/>
 
-        <lib-file src="src/android/libs/android-database-sqlcipher-4.5.4.aar" />
+        <lib-file src="src/android/libs/android-database-sqlcipher-4.5.4-custom.aar" />
         <!-- androidx.sqlite now required -->
         <framework src="androidx.sqlite:sqlite:2.1.0" />
 
