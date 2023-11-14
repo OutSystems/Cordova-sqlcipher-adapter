@@ -6,12 +6,11 @@
 
 package io.sqlc;
 
+import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
 import com.outsystems.plugins.oslogger.OSLogger;
 import com.outsystems.plugins.oslogger.interfaces.Logger;
-
-import net.sqlcipher.database.SQLiteException;
 
 import java.io.File;
 

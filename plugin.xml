@@ -27,6 +27,7 @@
     <!-- android -->
     <platform name="android">
         <!-- Cordova >= 3.0.0 -->
+
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="SQLitePlugin">
                 <param name="android-package" value="io.sqlc.SQLitePlugin"/>
@@ -39,16 +40,8 @@
         <lib-file src="src/android/libs/android-database-sqlcipher-4.5.4-custom.aar" />
         <!-- androidx.sqlite now required -->
         <framework src="androidx.sqlite:sqlite:2.1.0" />
+        <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
 
-        <!-- [FUTURE TBD] consider using external aar again -->
-        <!-- THANKS to @jcesarmobile for GUIDANCE in accepted answer:
-             https://stackoverflow.com/questions/34115571/add-external-jar-library-to-build-cordova-plugin-ionic-framework/34129929#34129929
-         -->
-        <!-- SQLCipher distribution for Android
-             [sqlcipher.jar & ndk objects in aar (modified reference for Buildr)] from:
-             https://mvnrepository.com/artifact/net.zetetic/android-database-sqlcipher/4.3.0
-        <framework src="net.zetetic:android-database-sqlcipher:4.3.0" />
-        - -->
     </platform>
 
     <!-- iOS -->
