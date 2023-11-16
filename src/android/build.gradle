@@ -1,0 +1,3 @@
+dependencies{
+    implementation files("libs/android-database-sqlcipher-4.5.4-custom.aar")
+}
