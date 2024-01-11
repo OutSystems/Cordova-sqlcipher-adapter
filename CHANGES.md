@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## cordova-sqlcipher-adapter 0.1.7-OS8
+
 - Update for SQLCipher 4.4.2 and SQLite 3.33.0
 
 ## cordova-sqlcipher-adapter 0.1.7-OS7
