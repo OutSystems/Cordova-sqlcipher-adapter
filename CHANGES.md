@@ -1,6 +1,10 @@
 # Changes
 
-## unreleased
+## cordova-sqlcipher-adapter 0.1.7-OS9
+
+- Update SQLCipher to 4.6.1, with support for 16KB page size devices (https://outsystemsrd.atlassian.net/browse/RMET-3602)
+
+## cordova-sqlcipher-adapter 0.1.7-OS8
 
 - Update for SQLCipher 4.4.2 and SQLite 3.33.0
 

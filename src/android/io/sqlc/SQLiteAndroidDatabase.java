@@ -7,8 +7,7 @@
 package io.sqlc;
 
 // SQLCipher version of database classes:
-import net.sqlcipher.*;
-import net.sqlcipher.database.*;
+import net.zetetic.database.sqlcipher.*;
 
 /* ** NOT USED in this plugin version:
 import android.database.Cursor;
@@ -20,6 +19,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteStatement;
 // */
 
+import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
@@ -70,10 +70,9 @@ class SQLiteAndroidDatabase
     /**
      * to load native lib(s)
      */
-    //@Override
     static
-    public void initialize(CordovaInterface cordova) {
-        SQLiteDatabase.loadLibs(cordova.getActivity());
+    public void initialize() {
+        System.loadLibrary("sqlcipher");
     }
 
     /**
@@ -87,9 +86,9 @@ class SQLiteAndroidDatabase
         SQLiteDatabaseHook hook = null;
         if(migrateCipher) {
             hook = new SQLiteDatabaseHook() {
-                public void preKey(SQLiteDatabase database) {}
-                public void postKey(SQLiteDatabase database) {
-                    database.rawExecSQL("PRAGMA cipher_migrate");
+                public void preKey(SQLiteConnection connection) {}
+                public void postKey(SQLiteConnection connection) {
+                    connection.executeRaw("PRAGMA cipher_migrate", null, null);
                 }
             };
         }

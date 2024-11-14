@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-sqlcipher-adapter"
-    version="0.1.7-OS8">
+    version="0.1.7-OS9">
 
     <name>Cordova sqlcipher adapter</name>
 
@@ -37,7 +37,7 @@
         <source-file src="src/android/io/sqlc/SQLitePlugin.java" target-dir="src/io/sqlc"/>
         <source-file src="src/android/io/sqlc/SQLiteAndroidDatabase.java" target-dir="src/io/sqlc"/>
 
-        <lib-file src="src/android/libs/android-database-sqlcipher-4.5.4-custom.aar" />
+        <framework src="net.zetetic:sqlcipher-android:4.6.1" />
         <!-- androidx.sqlite now required -->
         <framework src="androidx.sqlite:sqlite:2.1.0" />
         <framework src="src/android/build.gradle" custom="true" type="gradleReference" />

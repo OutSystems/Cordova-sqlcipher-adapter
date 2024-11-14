@@ -76,7 +76,7 @@ public class SQLitePlugin extends CordovaPlugin {
         super.initialize(cordova, webView);
         logger = OSLogger.getInstance();
         selfHealingEnabled = preferences.getBoolean("EnableSQLCipherSelfHealing", false);
-        SQLiteAndroidDatabase.initialize(cordova);
+        SQLiteAndroidDatabase.initialize();
     }
 
 
