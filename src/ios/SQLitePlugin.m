@@ -207,7 +207,7 @@
                 const char *key = NULL;
                 if (dbkey != NULL && dbkey.length != 0) key = [dbkey UTF8String];
                 NSLog((key != NULL) ? @"Open DB with encryption" : @"Open DB with NO encryption");
-                if (key != NULL) sqlite3_key(db, key, strlen(key));
+                if (key != NULL) sqlite3_key(db, key, (int)strlen(key));
 
                 if(migrateSqlCipher) {
                     int migrationResult = sqlite3_exec(db, (const char*)"PRAGMA cipher_migrate;", NULL, NULL, NULL);
