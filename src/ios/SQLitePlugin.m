@@ -7,7 +7,6 @@
  */
 
 #import "SQLitePlugin.h"
-//#import "OSLogger.h"
 #import "sqlite3.h"
 
 // Defines Macro to only log lines when in DEBUG mode
@@ -29,7 +28,6 @@
 @end
 
 @interface SQLitePlugin()
-//@property (nonatomic, readonly, strong) id <OSLoggerProtocol> logger;
 @property (nonatomic, assign, readonly) BOOL selfHealingEnabled;
 @end
 
@@ -47,8 +45,6 @@
     {
         openDBs = [CustomPSPDFThreadSafeMutableDictionary dictionaryWithCapacity:0];
         appDBPaths = [NSMutableDictionary dictionaryWithCapacity:0];
-
-        //_logger = [OSLogger sharedInstance];
         
         id selfHealingEnabledValue = [self.commandDelegate.settings objectForKey: [@"EnableSQLCipherSelfHealing" lowercaseString]];
         if (selfHealingEnabledValue != nil) {
@@ -241,7 +237,8 @@
                     
                     if(selfHealingEnabled) {
                         [[command.arguments objectAtIndex:0] setObject:dbfilename forKey:@"path"];
-                       // [_logger logWarning:[NSString stringWithFormat:@"iOS ciphered database will be deleted to self heal"] withModule:@"SQLite"];
+                        NSLog(@"SQLite: iOS ciphered database will be deleted to self heal");
+                        
                         [self deleteNow:command];
                         return [self openNow:command migrateSqlCipher:false];
                     }
