@@ -6,6 +6,7 @@
 
 package io.sqlc;
 
+import android.app.Activity;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
@@ -116,6 +117,9 @@ public class SQLitePlugin extends CordovaPlugin {
         JSONObject o;
         String echo_value;
         String dbname;
+
+        //send test event
+        this.triggerEvent("OutSystemsSecureSQLiteBundle.fireEvent(\"logError\", \"Example error message\");");
 
         switch (action) {
             case echoStringValue:
@@ -489,6 +493,19 @@ public class SQLitePlugin extends CordovaPlugin {
         executeSqlBatch,
         backgroundExecuteSqlBatch,
     }
+
+
+    private void triggerEvent(String js) {
+        if (this.webView == null) {
+            return;
+        }
+        Activity viewActivity = (Activity)this.webView.getContext();
+
+        viewActivity.runOnUiThread(
+            () -> this.webView.loadUrl("javascript:" + js)
+        );
+    }
+
 }
 
 /* vim: set expandtab : */
