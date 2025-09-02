@@ -9,9 +9,6 @@ package io.sqlc;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
-import com.outsystems.plugins.oslogger.OSLogger;
-import com.outsystems.plugins.oslogger.interfaces.Logger;
-
 import java.io.File;
 
 import java.lang.IllegalArgumentException;
@@ -56,7 +53,6 @@ public class SQLitePlugin extends CordovaPlugin {
      */
     static Map<String, DBRunner> dbrmap = new ConcurrentHashMap<String, DBRunner>();
 
-    private Logger logger;
     private boolean selfHealingEnabled = false;
     private boolean didTryCipherMigration = false;
 
@@ -74,7 +70,6 @@ public class SQLitePlugin extends CordovaPlugin {
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
-        logger = OSLogger.getInstance();
         selfHealingEnabled = preferences.getBoolean("EnableSQLCipherSelfHealing", false);
         SQLiteAndroidDatabase.initialize();
     }
@@ -252,10 +247,10 @@ public class SQLitePlugin extends CordovaPlugin {
             return mydb;
         } catch (Exception e) {
 
-            logger.logWarning("Got " + e.getMessage() + " exception.", "SQLite");
+            Log.w("SQLite", "Got " + e.getMessage() + " exception.");
 
             if(mydb != null && !didTryCipherMigration) {
-                logger.logVerbose("Will try Cipher Migration.", "SQLite");
+                Log.v("SQLite", "Will try Cipher Migration.");
                 /*
                  * An error was found and will try to migrate.
                  * The migration process is described here: https://www.zetetic.net/sqlcipher/sqlcipher-api/#cipher_migrate
@@ -270,7 +265,7 @@ public class SQLitePlugin extends CordovaPlugin {
             if(selfHealingEnabled && (e.getMessage().contains("file is encrypted or is not a database:") ||
                     ((e instanceof SQLiteException) && e.getMessage().contains("file is not a database:") )))
             {
-                logger.logWarning("Android ciphered database will be deleted to self heal: " + e.getMessage(), "SQLite");
+                Log.w("SQLite", "Android ciphered database will be deleted to self heal: " + e.getMessage());
                 deleteDatabaseNow(dbname);
                 return openDatabase(dbname, key, cbc, false);
             } else {
