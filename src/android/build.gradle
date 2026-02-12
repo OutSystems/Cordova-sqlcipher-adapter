@@ -3,5 +3,5 @@ repositories {
 }
 
 dependencies{
-    implementation "net.zetetic:sqlcipher-android:4.6.1@aar"
+    implementation "net.zetetic:sqlcipher-android:4.10.0@aar"
 }

@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-sqlcipher-adapter"
-    version="0.1.7-OS10">
+    version="0.1.7-OS11">
 
     <name>Cordova sqlcipher adapter</name>
 
@@ -37,7 +37,7 @@
         <source-file src="src/android/io/sqlc/SQLitePlugin.java" target-dir="src/io/sqlc"/>
         <source-file src="src/android/io/sqlc/SQLiteAndroidDatabase.java" target-dir="src/io/sqlc"/>
 
-        <framework src="net.zetetic:sqlcipher-android:4.6.1" />
+        <framework src="net.zetetic:sqlcipher-android:4.10.0" />
         <!-- androidx.sqlite now required -->
         <framework src="androidx.sqlite:sqlite:2.1.0" />
         <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
@@ -64,6 +64,8 @@
                      compiler-flags="-w
                                      -DSQLITE_HAS_CODEC -DHAVE_USLEEP=1
                                      -DSQLITE_TEMP_STORE=3
+                                     -DSQLITE_EXTRA_INIT=sqlcipher_extra_init
+                                     -DSQLITE_EXTRA_SHUTDOWN=sqlcipher_extra_shutdown
                                      -DSQLCIPHER_CRYPTO_CC -DSQLITE_LOCKING_STYLE=1 -DNDEBUG
                                      -DSQLITE_THREADSAFE=1
                                      -DSQLITE_DEFAULT_SYNCHRONOUS=3
@@ -99,6 +101,8 @@
                      compiler-flags="-w
                                      -DSQLITE_HAS_CODEC -DHAVE_USLEEP=1
                                      -DSQLITE_TEMP_STORE=3
+                                     -DSQLITE_EXTRA_INIT=sqlcipher_extra_init
+                                     -DSQLITE_EXTRA_SHUTDOWN=sqlcipher_extra_shutdown
                                      -DSQLCIPHER_CRYPTO_CC -DSQLITE_LOCKING_STYLE=1 -DNDEBUG
                                      -DSQLITE_THREADSAFE=1
                                      -DSQLITE_DEFAULT_SYNCHRONOUS=3

@@ -1,5 +1,9 @@
 # Changes
 
+## cordova-sqlcipher-adapter 0.1.7-OS11
+
+- Update SQLCipher to [4.10.0](https://github.com/sqlcipher/sqlcipher/releases/tag/v4.10.0), and updates SQLite to 3.50.4 (https://outsystemsrd.atlassian.net/browse/RMET-4293).
+
 ## cordova-sqlcipher-adapter 0.1.7-OS10
 
 - Fix: Remove dependencies to OSLogger (https://outsystemsrd.atlassian.net/browse/RMET-4297).
