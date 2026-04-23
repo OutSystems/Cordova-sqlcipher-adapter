@@ -10,3 +10,8 @@ spec/myplugin
 spec/plugins
 spec/platforms
 yarn.lock
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
