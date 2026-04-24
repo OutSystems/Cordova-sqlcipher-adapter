@@ -52,14 +52,14 @@
             </feature>
         </config-file>
 
-        <header-file src="src/ios/SQLitePlugin.h" nospm="true" />
-        <source-file src="src/ios/SQLitePlugin.m" compiler-flags="-DSQLITE_HAS_CODEC" nospm="true" />
+        <header-file src="src/ios/SQLitePlugin.h" />
+        <source-file src="src/ios/SQLitePlugin.m" compiler-flags="-DSQLITE_HAS_CODEC" />
 
         <source-file src="src/ios/CustomPSPDFThreadSafeMutableDictionary.m"
-                compiler-flags="-w" nospm="true" />
+                compiler-flags="-w" />
 
         <!-- SQLCipher source distribution and Security.framework dependency for iOS: -->
-        <header-file src="src/common/sqlite3.h" nospm="true" />
+        <header-file src="src/common/sqlite3.h" />
         <source-file src="src/common/sqlite3.c"
                      compiler-flags="-w
                                      -DSQLITE_HAS_CODEC -DHAVE_USLEEP=1
@@ -74,9 +74,9 @@
                                      -DSQLITE_OMIT_PROGRESS_CALLBACK -DSQLITE_OMIT_SHARED_CACHE -DSQLITE_OMIT_LOAD_EXTENSION
                                      -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_FTS4 -DSQLITE_ENABLE_RTREE
                                      -DSQLITE_ENABLE_FTS5 -DSQLITE_ENABLE_JSON1
-                                    " nospm="true" />
+                                    " />
 
-        <framework src="Security.framework" nospm="true" />
+        <framework src="Security.framework" />
     </platform>
 
     <!-- macOS (osx) -->
