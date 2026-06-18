@@ -33,11 +33,15 @@
   "scripts": {
     "clean-spec": "rm -rf spec/[mnp]* && git cl spec/config.xml && git status --ignored",
     "prepare-js": "coffee -p SQLitePlugin.coffee.md > www/SQLitePlugin.js",
-    "prepare-spec": "node scripts/prepareSpec.js"
+    "prepare-spec": "node scripts/prepareSpec.js",
+    "release": "node scripts/release.js"
   },
   "devDependencies": {
+    "@octokit/rest": "^21.0.2",
     "coffeescript": "1",
     "cross-spawn": "^6.0.5",
-    "fs-extra": "^8.1.0"
+    "fs-extra": "^8.1.0",
+    "simple-git": "^3.25.0",
+    "xml2js": "^0.6.2"
   }
 }
