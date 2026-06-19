@@ -1,1 +1,10 @@
+## [0.1.7-OS12]
+
+### 2026-06-19
+
+- chore: remove lockfile from gitignore
+- ci: Trigger release on push to main (#20)
+- ci: Release and Changelog Automation (#19)
+
+
 # Changelog
