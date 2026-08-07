@@ -1,3 +1,10 @@
+## [0.1.7-OS13]
+
+### 2026-08-07
+
+- ci: use node 24 and update action versions (#21)
+
+
 ## [0.1.7-OS12]
 
 ### 2026-06-19
