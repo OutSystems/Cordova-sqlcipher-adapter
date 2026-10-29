@@ -2,7 +2,7 @@
 
 ## cordova-sqlcipher-adapter 0.1.7-OS14
 
-- Update SQLCipher to [4.18.0](https://github.com/sqlcipher/sqlcipher/releases/tag/v4.18.0), and updates SQLite to 3.53.4 (https://outsystemsrd.atlassian.net/browse/RMET-5422, https://outsystemsrd.atlassian.net/browse/RMET-5423).
+- Update SQLCipher to [4.19.0](https://github.com/sqlcipher/sqlcipher/releases/tag/v4.19.0) (iOS, built from source) and `sqlcipher-android` to 4.19.1 (Android, which is compatible with `compileSdk` 36), and updates SQLite to 3.53.4 (https://outsystemsrd.atlassian.net/browse/RMET-5422, https://outsystemsrd.atlassian.net/browse/RMET-5423).
 
 ## cordova-sqlcipher-adapter 0.1.7-OS13
 

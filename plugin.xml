@@ -16,7 +16,7 @@
         </config-file>
         <source-file src="src/android/io/sqlc/SQLitePlugin.java" target-dir="src/io/sqlc"/>
         <source-file src="src/android/io/sqlc/SQLiteAndroidDatabase.java" target-dir="src/io/sqlc"/>
-        <framework src="net.zetetic:sqlcipher-android:4.18.0"/>
+        <framework src="net.zetetic:sqlcipher-android:4.19.1"/>
         <framework src="androidx.sqlite:sqlite:2.1.0"/>
         <framework src="src/android/build.gradle" custom="true" type="gradleReference"/>
     </platform>
