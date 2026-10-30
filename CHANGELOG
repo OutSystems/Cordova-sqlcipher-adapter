@@ -1,3 +1,10 @@
+## [0.1.7-OS14]
+
+### 2026-10-30
+
+- feat: update to SQLCipher to 4.19 and SQLite to 3.53.4 (#22)
+
+
 ## [0.1.7-OS13]
 
 ### 2026-08-07
