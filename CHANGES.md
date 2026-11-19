@@ -1,5 +1,9 @@
 # Changes
 
+## cordova-sqlcipher-adapter 0.1.7-OS15
+
+- Android: only use `sqlcipher-android` 4.19.1 when building with `compileSdk` 37 or later (MABS 13). It needs `compileSdk` 36 and Kotlin 2.x, which broke MABS 11 and 12 builds, so they keep 4.10.0 (SQLite 3.50.4), matching their shell (https://outsystemsrd.atlassian.net/browse/RMET-5633).
+
 ## cordova-sqlcipher-adapter 0.1.7-OS14
 
 - Update SQLCipher to [4.19.0](https://github.com/sqlcipher/sqlcipher/releases/tag/v4.19.0) (iOS, built from source) and `sqlcipher-android` to 4.19.1 (Android, which is compatible with `compileSdk` 36), and updates SQLite to 3.53.4 (https://outsystemsrd.atlassian.net/browse/RMET-5422, https://outsystemsrd.atlassian.net/browse/RMET-5423).
