@@ -140,4 +140,4 @@ Windows platform toolset dependency updated for Visual Studio 2017
 
 ## Recent changes
 
-See CHANGES.md
+See CHANGELOG.md

@@ -1,21 +1,33 @@
-# Changes
+# Changelog
 
-## cordova-sqlcipher-adapter 0.1.7-OS15
+## [0.1.7-OS14]
 
-- Android: only use `sqlcipher-android` 4.19.1 when building with `compileSdk` 37 or later (MABS 13). It needs `compileSdk` 36 and Kotlin 2.x, which broke MABS 11 and 12 builds, so they keep 4.10.0 (SQLite 3.50.4), matching their shell (https://outsystemsrd.atlassian.net/browse/RMET-5633).
+### 2026-10-30
 
-## cordova-sqlcipher-adapter 0.1.7-OS14
+- feat: update to SQLCipher to 4.19 and SQLite to 3.53.4 (#22)
 
-- Update SQLCipher to [4.19.0](https://github.com/sqlcipher/sqlcipher/releases/tag/v4.19.0) (iOS, built from source) and `sqlcipher-android` to 4.19.1 (Android, which is compatible with `compileSdk` 36), and updates SQLite to 3.53.4 (https://outsystemsrd.atlassian.net/browse/RMET-5422, https://outsystemsrd.atlassian.net/browse/RMET-5423).
 
-## cordova-sqlcipher-adapter 0.1.7-OS13
+## [0.1.7-OS13]
 
-- CI: Use Node 24 and update action versions.
+### 2026-08-07
 
-## cordova-sqlcipher-adapter 0.1.7-OS12
+- ci: use node 24 and update action versions (#21)
 
-- CI: Add release and changelog automation, and trigger releases on push to main.
-- Chore: Remove lockfile from `.gitignore`.
+
+## [0.1.7-OS12]
+
+### 2026-06-19
+
+- chore: remove lockfile from gitignore
+- ci: Trigger release on push to main (#20)
+- ci: Release and Changelog Automation (#19)
+
+
+---
+
+# Older changelog entries
+
+Entries below were written by hand before release automation was added (formerly `CHANGES.md`).
 
 ## cordova-sqlcipher-adapter 0.1.7-OS11
 
