@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.7-OS15]
+
+### 2026-11-23
+
+- fix(android): only use sqlcipher-android 4.19.1 on MABS 13 (#23)
+
 ## [0.1.7-OS14]
 
 ### 2026-10-30
