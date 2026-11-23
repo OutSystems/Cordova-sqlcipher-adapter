@@ -2,6 +2,12 @@ repositories {
     mavenCentral()
 }
 
-dependencies{
-    implementation "net.zetetic:sqlcipher-android:4.19.1@aar"
+// sqlcipher-android 4.19.1 (SQLite 3.53.4) needs compileSdk 36 and Kotlin 2.x, so only MABS 13 (compileSdk 37) gets it.
+// Older MABS versions keep 4.10.0 (SQLite 3.50.4), which matches their shell.
+// Cordova sets cordovaConfig; Capacitor sets it to an empty map and has compileSdkVersion in variables.gradle.
+def compileSdk = project.findProperty('cordovaConfig')?.COMPILE_SDK_VERSION ?: rootProject.findProperty('compileSdkVersion')
+def sqlcipher = (("$compileSdk".find(/\d+/) ?: '0') as int) >= 37 ? '4.19.1' : '4.10.0'
+
+dependencies {
+    implementation "net.zetetic:sqlcipher-android:${sqlcipher}"
 }

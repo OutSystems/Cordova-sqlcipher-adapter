@@ -20,7 +20,7 @@ const { Octokit } = require('@octokit/rest');
 const BASE_VERSION = '0.1.7-OS';
 const PLUGIN_XML_PATH = path.join(__dirname, '..', 'plugin.xml');
 const PACKAGE_JSON_PATH = path.join(__dirname, '..', 'package.json');
-const CHANGELOG_PATH = path.join(__dirname, '..', 'CHANGELOG');
+const CHANGELOG_PATH = path.join(__dirname, '..', 'CHANGELOG.md');
 
 // Initialize git and octokit
 const git = simpleGit();
@@ -313,7 +313,7 @@ function updateChangelog(entry) {
   }
 
   fs.writeFileSync(CHANGELOG_PATH, changelog);
-  console.log(`✅ Updated CHANGELOG`);
+  console.log(`✅ Updated CHANGELOG.md`);
 }
 
 /**
